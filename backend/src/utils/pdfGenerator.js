@@ -1,9 +1,10 @@
 const PDFDocument = require('pdfkit');
 
-const INK = '#3f2f52';
-const NAVY = '#7a5d93';
-const PLUM = '#a98aa0';
-const CORAL = '#ecb0ad';
+const INK = '#091413';
+const NAVY = '#285A48';
+const PLUM = '#408A71';
+const MINT = '#B0E4CC';
+const CORAL = '#F1F7D4';
 
 // Returns a Buffer containing the rendered invoice PDF.
 function generateInvoicePdf(invoice, user) {
@@ -72,7 +73,7 @@ function generateInvoicePdf(invoice, user) {
     doc.font('Helvetica').fontSize(9);
     (invoice.items || []).forEach((it, idx) => {
       const rowH = 22;
-      if (idx % 2 === 1) doc.rect(50, y, 495, rowH).fill('#faf8fa');
+      if (idx % 2 === 1) doc.rect(50, y, 495, rowH).fill('#eaf6ee');
       doc.fillColor(INK);
       doc.text(it.description || '', cols[0].x + 4, y + 6, { width: cols[0].w - 8 });
       doc.text(it.hsnSac || '', cols[1].x + 4, y + 6, { width: cols[1].w - 8 });
@@ -84,7 +85,7 @@ function generateInvoicePdf(invoice, user) {
       y += rowH;
     });
 
-    doc.moveTo(50, y).lineTo(545, y).strokeColor('#e7e1e6').lineWidth(1).stroke();
+    doc.moveTo(50, y).lineTo(545, y).strokeColor('#d8ead9').lineWidth(1).stroke();
     y += 14;
 
     // Totals

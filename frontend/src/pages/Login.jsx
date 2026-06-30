@@ -39,7 +39,7 @@ export default function Login() {
           }}
         >
           <span className="dot" style={{ margin: 0 }} />
-          <h3 style={{ margin: 0, textAlign: 'center' }}>InvoiceFlow</h3>
+          <h2 style={{ margin: 0, textAlign: 'center' }}>InvoiceFlow</h2>
         </div>
         
        
