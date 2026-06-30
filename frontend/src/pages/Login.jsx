@@ -26,9 +26,29 @@ export default function Login() {
   return (
     <div className="auth-shell">
       <div className="auth-card">
-        <div className="brand"><span className="dot" /><h3 style={{ margin: 0 }}>InvoiceFlow</h3></div>
-        <p className="subtitle">Log in to manage your GST invoices.</p>
+        {/* 🌟 Centered branding header stack */}
+        <div 
+          className="brand" 
+          style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            gap: '8px',
+            marginBottom: '12px'
+          }}
+        >
+          <span className="dot" style={{ margin: 0 }} />
+          <h3 style={{ margin: 0, textAlign: 'center' }}>InvoiceFlow</h3>
+        </div>
+        
+       
+        <p className="subtitle text-center" style={{ textAlign: 'center', marginBottom: '24px' }}>
+          Log in to manage your GST invoices.
+        </p>
+
         {error && <div className="alert-error">{error}</div>}
+        
         <form onSubmit={submit}>
           <div className="field">
             <label>Email</label>
@@ -45,7 +65,7 @@ export default function Login() {
             {busy ? 'Logging in…' : 'Log in'}
           </button>
         </form>
-        <div className="switch-link">No account? <Link to="/register">Create one</Link></div>
+        <div className="switch-link" style={{ textAlign: 'center' }}>No account? <Link to="/register">Create one</Link></div>
       </div>
     </div>
   );

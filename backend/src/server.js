@@ -22,14 +22,31 @@ app.use('/api/invoices', invoiceRoutes);
 
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT || 5000);
+
+const startServer = (port) => {
+  const server = app.listen(port, () => {
+    console.log(`🚀 Server running on http://localhost:${port}`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`⚠️ Port ${port} is busy. Trying ${port + 1}...`);
+      startServer(port + 1);
+    } else {
+      console.error('❌ Server failed to start:', err.message);
+      process.exit(1);
+    }
+  });
+};
 
 sequelize
   .authenticate()
   .then(() => {
     console.log('✅ MySQL connected');
-    app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+    startServer(PORT);
   })
   .catch((err) => {
     console.error('❌ Could not connect to MySQL:', err.message);
+    process.exit(1);
   });
