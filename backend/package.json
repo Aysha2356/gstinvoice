@@ -1,0 +1,28 @@
+{
+  "name": "gst-invoice-backend",
+  "version": "1.0.0",
+  "description": "Express + MySQL (Sequelize) backend for the GST Invoice Manager",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "db:sync": "node src/syncDb.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.10.0",
+    "nodemailer": "^9.0.2",
+    "openai": "^4.104.0",
+    "pdfkit": "^0.19.1",
+    "sequelize": "^6.37.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
