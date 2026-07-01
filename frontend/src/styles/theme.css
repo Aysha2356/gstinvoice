@@ -360,8 +360,8 @@ table.list-table tr:hover td { background: #faf8fa; }
 .invoice-layout {
   display: grid;
   grid-template-columns: 220px 1fr;
-  gap: 16px;
-  align-items: start;
+  gap: 24px;
+  align-items: flex-start;
   min-width: 0;
   overflow: hidden;
 }
