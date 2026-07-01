@@ -6,7 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { formatINR } from '../utils/format';
 
 const blankItem = () => ({
-  description: '', hsnSac: '', qty: 1, rate: 0, sgstPct: 0, cgstPct: 0,
+  productId: '', description: '', hsnSac: '', qty: 1, rate: 0, sgstPct: 0, cgstPct: 0,
 });
 
 function calcLocalTotals(items) {
@@ -42,11 +42,6 @@ export default function InvoiceForm() {
   const [errors, setErrors] = useState({});
 
   const [products, setProducts] = useState([]);
-  const [productSearch, setProductSearch] = useState('');
-  const [showAddProduct, setShowAddProduct] = useState(false);
-  const [newProduct, setNewProduct] = useState({
-    name: '', hsnSac: '', rate: 0, sgstPct: 0, cgstPct: 0, unit: 'pcs',
-  });
 
   useEffect(() => {
     api.get('/clients', { params: { page: 1, pageSize: 100 } })
@@ -70,38 +65,31 @@ export default function InvoiceForm() {
     }
   }, [id]);
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(productSearch.toLowerCase())
-  );
-
-  const addProductToInvoice = (product) => {
-    const newItem = {
+  // NEW: fills a line item row when a product is chosen from the inline search dropdown
+  const selectProductForRow = (idx, product) => {
+    const next = [...items];
+    next[idx] = {
+      ...next[idx],
+      productId: product.id,
       description: product.name,
       hsnSac: product.hsnSac || '',
-      qty: 1,
       rate: Number(product.rate),
       sgstPct: Number(product.sgstPct),
       cgstPct: Number(product.cgstPct),
     };
-    setItems((prev) => {
-      if (prev.length === 1 && !prev[0].description) return [newItem];
-      return [...prev, newItem];
-    });
-    showToast(`${product.name} added`, 'success');
+    setItems(next);
+    setItemSearch((prev) => ({ ...prev, [idx]: '' }));
+    setOpenDropdownIdx(null);
   };
 
-  const saveNewProduct = async (e) => {
-    e.preventDefault();
-    if (!newProduct.name.trim()) return;
-    try {
-      const res = await api.post('/products', newProduct);
-      setProducts((prev) => [...prev, res.data]);
-      setNewProduct({ name: '', hsnSac: '', rate: 0, sgstPct: 0, cgstPct: 0, unit: 'pcs' });
-      setShowAddProduct(false);
-      showToast('Product added to catalog', 'success');
-    } catch (err) {
-      showToast(err.response?.data?.message || 'Could not add product', 'error');
-    }
+  // NEW: per-row search text + which row's dropdown is open
+  const [itemSearch, setItemSearch] = useState({});
+  const [openDropdownIdx, setOpenDropdownIdx] = useState(null);
+
+  const getRowSearchResults = (idx) => {
+    const query = (itemSearch[idx] || '').toLowerCase();
+    if (!query) return products;
+    return products.filter((p) => p.name.toLowerCase().includes(query));
   };
 
   const updateItem = (idx, key, value) => {
@@ -151,87 +139,9 @@ export default function InvoiceForm() {
 
   return (
     <AppLayout title={id ? 'Edit invoice' : 'New invoice'}>
-      <div className="invoice-layout">
+      <div className="invoice-layout invoice-layout-single">
 
-        {/* LEFT — Product catalog panel */}
-        <div className="product-panel">
-          <h4>📦 Product Catalog</h4>
-          <input
-            className="search-box"
-            placeholder="Search products…"
-            value={productSearch}
-            onChange={(e) => setProductSearch(e.target.value)}
-          />
-
-          {filteredProducts.length === 0 ? (
-            <div className="empty">
-              {productSearch ? 'No products found.' : 'No products yet.'}
-            </div>
-          ) : (
-            filteredProducts.map((p) => (
-              <div key={p.id} className="product-item" onClick={() => addProductToInvoice(p)}>
-                <div className="p-name">{p.name}</div>
-                <div className="p-meta">
-                  {p.hsnSac ? `HSN: ${p.hsnSac} · ` : ''}
-                  ₹{Number(p.rate).toFixed(2)} · GST {Number(p.sgstPct) + Number(p.cgstPct)}%
-                </div>
-              </div>
-            ))
-          )}
-
-          {!showAddProduct ? (
-            <button
-              className="btn btn-secondary add-product-btn"
-              onClick={() => setShowAddProduct(true)}
-            >
-              + Add product to catalog
-            </button>
-          ) : (
-            <form onSubmit={saveNewProduct} style={{ marginTop: 10 }}>
-              <div className="field">
-                <label>Product name</label>
-                <input required value={newProduct.name}
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
-              </div>
-              <div className="field">
-                <label>HSN/SAC</label>
-                <input value={newProduct.hsnSac}
-                  onChange={(e) => setNewProduct({ ...newProduct, hsnSac: e.target.value })} />
-              </div>
-              <div className="form-row">
-                <div className="field">
-                  <label>Rate (₹)</label>
-                  <input type="number" min="0" value={newProduct.rate}
-                    onChange={(e) => setNewProduct({ ...newProduct, rate: e.target.value })} />
-                </div>
-                <div className="field">
-                  <label>Unit</label>
-                  <input value={newProduct.unit}
-                    onChange={(e) => setNewProduct({ ...newProduct, unit: e.target.value })} />
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="field">
-                  <label>SGST%</label>
-                  <input type="number" min="0" value={newProduct.sgstPct}
-                    onChange={(e) => setNewProduct({ ...newProduct, sgstPct: e.target.value })} />
-                </div>
-                <div className="field">
-                  <label>CGST%</label>
-                  <input type="number" min="0" value={newProduct.cgstPct}
-                    onChange={(e) => setNewProduct({ ...newProduct, cgstPct: e.target.value })} />
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button type="button" className="btn btn-secondary"
-                  style={{ flex: 1 }} onClick={() => setShowAddProduct(false)}>Cancel</button>
-                <button className="btn btn-primary" style={{ flex: 1 }}>Save</button>
-              </div>
-            </form>
-          )}
-        </div>
-
-        {/* RIGHT — Invoice form */}
+        {/* Invoice form */}
         <form onSubmit={save} className="card">
 
           {/* Client + Place of supply */}
@@ -282,11 +192,11 @@ export default function InvoiceForm() {
           {errors.items && <div className="field-error mb-16">{errors.items}</div>}
 
           {/* Line items table */}
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: 'visible' }}>
             <table className="items-table list-table mb-16" style={{ minWidth: 520 }}>
               <thead>
                 <tr>
-                  <th>Item description</th>
+                  <th>Item name</th>
                   <th>HSN/SAC</th>
                   <th>Qty</th>
                   <th>Rate</th>
@@ -299,9 +209,48 @@ export default function InvoiceForm() {
               <tbody>
                 {items.map((it, idx) => (
                   <tr key={idx}>
-                    <td>
-                      <input value={it.description} placeholder="Item name"
-                        onChange={(e) => updateItem(idx, 'description', e.target.value)} />
+                    <td style={{ position: 'relative' }}>
+                      {/* CHANGED: item name is now a searchable combobox sourced from
+                          the product catalog, instead of a plain select or free text */}
+                      <input
+                        value={
+                          openDropdownIdx === idx
+                            ? (itemSearch[idx] ?? it.description)
+                            : it.description
+                        }
+                        placeholder="Search item…"
+                        onFocus={() => {
+                          setOpenDropdownIdx(idx);
+                          setItemSearch((prev) => ({ ...prev, [idx]: '' }));
+                        }}
+                        onChange={(e) =>
+                          setItemSearch((prev) => ({ ...prev, [idx]: e.target.value }))
+                        }
+                        onBlur={() => {
+                          setTimeout(() => setOpenDropdownIdx((cur) => (cur === idx ? null : cur)), 150);
+                        }}
+                      />
+                      {openDropdownIdx === idx && (
+                        <div className="item-search-dropdown">
+                          {getRowSearchResults(idx).length === 0 ? (
+                            <div className="item-search-empty">No products found.</div>
+                          ) : (
+                            getRowSearchResults(idx).map((p) => (
+                              <div
+                                key={p.id}
+                                className="item-search-option"
+                                onMouseDown={() => selectProductForRow(idx, p)}
+                              >
+                                <div className="p-name">{p.name}</div>
+                                <div className="p-meta">
+                                  {p.hsnSac ? `HSN: ${p.hsnSac} · ` : ''}
+                                  ₹{Number(p.rate).toFixed(2)} · GST {Number(p.sgstPct) + Number(p.cgstPct)}%
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td>
                       <input value={it.hsnSac} style={{ width: 70 }}

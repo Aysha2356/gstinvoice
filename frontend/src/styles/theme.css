@@ -115,7 +115,9 @@ a:focus-visible {
 .topbar h2 { font-size: 1.05rem; margin: 0; }
 
 .page { padding: 28px; flex: 1;  }
-
+.page:has(.invoice-layout-single) {
+  max-width: none;
+}
 /* ---------- Cards / surfaces ---------- */
 .card {
   background: var(--surface);
@@ -422,4 +424,40 @@ table.list-table tr:hover td { background: #faf8fa; }
   width: 100%;
   margin-top: 10px;
   font-size: 0.82rem;
+}
+
+.item-search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 50;
+  width: 260px;
+  max-height: 168px;   /* shows ~3 items, then scrolls */
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.item-search-option {
+  padding: 8px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #e0e0e0;   /* line between each product */
+}
+
+.item-search-option:last-child {
+  border-bottom: none;                /* no line after the last one */
+}
+
+.item-search-option:hover {
+  background: #f4f8f6;
+}
+.invoice-layout-single {
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 24px;   /* small breathing room on left/right edges */
+  box-sizing: border-box;
 }

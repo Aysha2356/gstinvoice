@@ -29,14 +29,21 @@ function generateInvoicePdf(invoice, user) {
     doc.moveTo(50, doc.y).lineTo(545, doc.y).strokeColor(INK).lineWidth(1.5).stroke();
     doc.moveDown(1);
 
-    // From / Bill To
+    // From / Bill To — two independent columns.
+    // FIX: pdfkit's doc.y is a single shared cursor, so writing two side-by-side
+    // columns in sequence means whichever column is written LAST determines doc.y —
+    // even if the OTHER column was taller. That caused the table to sit too close
+    // to a short "Bill To" block while ignoring a taller "From" block (or vice versa).
+    // We now track each column's bottom Y separately and take the max before continuing.
     const topY = doc.y;
+
     doc.fontSize(9).fillColor(PLUM).text('From', 50, topY);
     doc.fontSize(11).fillColor(INK).font('Helvetica-Bold').text(user?.companyName || user?.name || '', 50, doc.y);
     doc.font('Helvetica').fontSize(9).fillColor(PLUM);
     if (user?.companyGSTIN) doc.text(`GSTIN: ${user.companyGSTIN}`, 50);
     if (user?.companyAddress) doc.text(user.companyAddress, 50);
     if (user?.city || user?.state) doc.text([user.city, user.state].filter(Boolean).join(', '), 50);
+    const leftBottomY = doc.y;
 
     doc.fontSize(9).fillColor(PLUM).text('Bill To', 320, topY, { width: 225 });
     doc.fontSize(11).fillColor(INK).font('Helvetica-Bold').text(invoice.Client?.name || '—', 320, doc.y, { width: 225 });
@@ -46,6 +53,12 @@ function generateInvoicePdf(invoice, user) {
     if (invoice.Client?.city || invoice.Client?.state) {
       doc.text([invoice.Client.city, invoice.Client.state].filter(Boolean).join(', '), 320, doc.y, { width: 225 });
     }
+    const rightBottomY = doc.y;
+
+    // Whichever column ended up taller wins — this guarantees consistent
+    // spacing before "Place of supply" / the items table regardless of
+    // whether the client has a short or long address, or no client at all.
+    doc.y = Math.max(leftBottomY, rightBottomY);
 
     doc.moveDown(2);
     if (invoice.placeOfSupply) {
