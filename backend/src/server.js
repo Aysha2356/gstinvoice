@@ -7,7 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
 const reminderRoutes = require('./routes/reminderRoutes');
-
+const productRoutes = require('./routes/productRoutes');
 const app = express();
 
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
@@ -19,7 +19,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/invoices', invoiceRoutes);
 //app.use('/api/reminders', reminderRoutes);
-
+app.use('/api/products', productRoutes);
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 
 const PORT = Number(process.env.PORT || 5000);

@@ -198,6 +198,7 @@ export default function InvoicePreview() {
           </div>
         </div>
 
+        {/* ✅ UPDATED TABLE (CESS REMOVED) */}
         <table className="list-table mb-16">
           <thead>
             <tr>
@@ -218,9 +219,18 @@ export default function InvoicePreview() {
                 <td>{it.hsnSac}</td>
                 <td>{it.qty}</td>
                 <td>{formatINR(it.rate)}</td>
-                <td>{formatINR((it.amount * it.sgstPct) / 100 || 0)}</td>
-                <td>{formatINR((it.amount * it.cgstPct) / 100 || 0)}</td>
-                <td className="text-right">{formatINR(it.amount)}</td>
+
+                <td>
+                  {formatINR((it.amount * it.sgstPct) / 100 || 0)}
+                </td>
+
+                <td>
+                  {formatINR((it.amount * it.cgstPct) / 100 || 0)}
+                </td>
+
+                <td className="text-right">
+                  {formatINR(it.amount)}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -264,10 +274,7 @@ export default function InvoicePreview() {
 
       {isOverdue && (
         <div className="card">
-          <div
-            className="flex-between"
-            style={{ flexWrap: 'wrap', gap: 10 }}
-          >
+          <div className="flex-between" style={{ flexWrap: 'wrap', gap: 10 }}>
             <div>
               <h3 style={{ margin: 0 }}>Payment is overdue</h3>
               <p className="muted" style={{ margin: '4px 0 0' }}>

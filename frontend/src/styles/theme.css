@@ -114,7 +114,7 @@ a:focus-visible {
 }
 .topbar h2 { font-size: 1.05rem; margin: 0; }
 
-.page { padding: 28px; flex: 1; }
+.page { padding: 28px; flex: 1;  }
 
 /* ---------- Cards / surfaces ---------- */
 .card {
@@ -355,4 +355,71 @@ table.list-table tr:hover td { background: #faf8fa; }
   justify-content: center;
   text-align: center;
   /* keep your existing padding, background, and borders here */
+}
+
+.invoice-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+  align-items: start;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.invoice-layout > * { min-width: 0; }
+
+@media (max-width: 1100px) {
+  .invoice-layout { grid-template-columns: 1fr; }
+  .product-panel { position: static !important; max-height: 260px !important; }
+}
+
+@media (max-width: 1024px) {
+  .invoice-layout {
+    grid-template-columns: 1fr;
+  }
+  .product-panel {
+    position: static !important;
+    max-height: 280px !important;
+  }
+}
+
+.product-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  position: sticky;
+  top: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.product-panel h4 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--ink); }
+.product-panel .search-box {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+  color: var(--text);
+  background: var(--bg);
+  box-sizing: border-box;
+}
+.product-item {
+  padding: 9px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  margin-bottom: 4px;
+  transition: background 0.12s;
+}
+.product-item:hover { background: var(--lavender); border-color: var(--border); }
+.product-item .p-name { font-size: 0.88rem; font-weight: 600; color: var(--ink); }
+.product-item .p-meta { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
+.product-panel .empty { font-size: 0.82rem; color: var(--text-muted); text-align: center; padding: 20px 0; }
+.product-panel .add-product-btn {
+  width: 100%;
+  margin-top: 10px;
+  font-size: 0.82rem;
 }

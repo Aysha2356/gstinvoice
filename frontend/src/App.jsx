@@ -9,6 +9,7 @@ import Clients from './pages/Clients';
 import InvoiceList from './pages/InvoiceList';
 import InvoiceForm from './pages/InvoiceForm';
 import InvoicePreview from './pages/InvoicePreview';
+import Products from './pages/Products';
 import Settings from './pages/Settings';
 
 export default function App() {
@@ -26,7 +27,7 @@ export default function App() {
       <Route path="/invoices/:id/edit" element={<PrivateRoute><InvoiceForm /></PrivateRoute>} />
       <Route path="/invoices/:id" element={<PrivateRoute><InvoicePreview /></PrivateRoute>} />
       <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-
+    <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

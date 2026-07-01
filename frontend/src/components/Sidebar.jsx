@@ -5,6 +5,7 @@ const links = [
   { to: '/invoices', label: 'Invoices' },
   { to: '/invoices/new', label: 'New Invoice' },
   { to: '/clients', label: 'Clients' },
+    { to: '/products', label: 'Products' },   // ← add this
   { to: '/settings', label: 'Settings' },
 ];
 
