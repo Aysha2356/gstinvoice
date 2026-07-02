@@ -1,10 +1,23 @@
 const PDFDocument = require('pdfkit');
+const path = require('path');
+const fs = require('fs');
 
 const INK = '#091413';
 const NAVY = '#285A48';
 const PLUM = '#408A71';
 const MINT = '#B0E4CC';
 const CORAL = '#F1F7D4';
+
+// Resolves a stored logoUrl (e.g. "/uploads/logos/company-logo-123.png")
+// to a real filesystem path so pdfkit's doc.image() can read it.
+// pdfGenerator.js lives at backend/src/utils, so ../../uploads
+// points to backend/uploads — same base folder multer saves into.
+function resolveLogoPath(logoUrl) {
+  if (!logoUrl) return null;
+  const relative = logoUrl.replace(/^\/?uploads[\\/]/, '');
+  const fullPath = path.join(__dirname, '../../uploads', relative);
+  return fs.existsSync(fullPath) ? fullPath : null;
+}
 
 // Returns a Buffer containing the rendered invoice PDF.
 function generateInvoicePdf(invoice, user) {
@@ -15,9 +28,20 @@ function generateInvoicePdf(invoice, user) {
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    // Header
-    doc.fillColor(INK).fontSize(22).font('Helvetica-Bold').text('TAX INVOICE', { align: 'left' });
-    doc.fontSize(10).fillColor(PLUM).font('Helvetica').text(invoice.invoiceNumber, { align: 'left' });
+    // Header — logo (if uploaded) sits top-left, title shifts right to make room
+    const logoPath = resolveLogoPath(user?.logoUrl);
+    const titleX = logoPath ? 110 : 50;
+
+    if (logoPath) {
+      try {
+        doc.image(logoPath, 50, 40, { width: 50, height: 50, fit: [50, 50] });
+      } catch (e) {
+        // Corrupt/unreadable image file — fall back to no logo rather than crash the PDF
+      }
+    }
+
+    doc.fillColor(INK).fontSize(22).font('Helvetica-Bold').text('TAX INVOICE', titleX, 45);
+    doc.fontSize(10).fillColor(PLUM).font('Helvetica').text(invoice.invoiceNumber, titleX, doc.y);
 
     doc.moveUp(2);
     doc.fontSize(9).fillColor(PLUM).text('Invoice date', 400, doc.y, { width: 145, align: 'right' });
