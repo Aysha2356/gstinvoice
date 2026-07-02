@@ -460,4 +460,63 @@ table.list-table tr:hover td { background: #faf8fa; }
   margin: 0;
   padding: 0 24px;   /* small breathing room on left/right edges */
   box-sizing: border-box;
+}  
+
+.invoice-row {
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.invoice-row:hover {
+  background: #f4f8f6;
+}
+
+.invoice-link {
+  color: var(--brand, #285A48);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.invoice-row-arrow {
+  color: var(--brand, #285A48);
+  font-size: 15px;
+  font-weight: 700;
+  opacity: 0.6;
+}
+
+.invoice-row:hover .invoice-row-arrow {
+  opacity: 1;
+}
+
+.view-bill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.view-bill-btn:hover {
+  background: #333;
+}
+
+.view-bill-icon {
+  font-size: 14px;
+}
+
+.terms-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.terms-list li {
+  margin-bottom: 4px;
 }

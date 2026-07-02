@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import AppLayout from '../components/AppLayout';
 import { formatINR } from '../utils/format';
@@ -7,6 +7,7 @@ import { formatINR } from '../utils/format';
 const PAGE_SIZE = 10;
 
 export default function InvoiceList() {
+  const navigate = useNavigate();
   const [invoices, setInvoices] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -90,19 +91,14 @@ export default function InvoiceList() {
                   <th>Due</th>
                   <th>Total</th>
                   <th>Status</th>
-                  <th></th>
+                  <th>Action</th>
                 </tr>
               </thead>
 
               <tbody>
                 {invoices.map((inv) => (
                   <tr key={inv.id}>
-                    <td>
-                      <Link to={`/invoices/${inv.id}`}>
-                        {inv.invoiceNumber}
-                      </Link>
-                    </td>
-
+                    <td>{inv.invoiceNumber}</td>
                     <td>{inv.Client?.name || '—'}</td>
                     <td>{inv.invoiceDate}</td>
                     <td>{inv.dueDate}</td>
@@ -113,7 +109,19 @@ export default function InvoiceList() {
                       </span>
                     </td>
 
-                    <td className="text-right"></td>
+                    {/* CHANGED: explicit "View Bill" button instead of relying
+                        on the invoice number text or the whole row being
+                        clickable — removes any ambiguity about how to open it */}
+                    <td>
+                      <button
+                        type="button"
+                        className="view-bill-btn"
+                        onClick={() => navigate(`/invoices/${inv.id}`)}
+                      >
+                        <span className="view-bill-icon" aria-hidden="true">👁</span>
+                        View Bill
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

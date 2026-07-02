@@ -126,7 +126,22 @@ function generateInvoicePdf(invoice, user) {
     }
     if (invoice.terms) {
       doc.font('Helvetica').fontSize(9).fillColor(PLUM).text('Terms & Conditions', 50, y);
-      doc.fillColor(INK).text(invoice.terms, 50, doc.y + 2, { width: 495 });
+      doc.fillColor(INK);
+      let termsY = doc.y + 2;
+      // Split on newlines first; if the whole thing arrived as one line
+      // (e.g. "-Point one. -Point two."), also split on " -" as a fallback
+      // so each condition renders as its own bullet instead of one paragraph.
+      let termLines = invoice.terms
+        .split(/\r?\n/)
+        .flatMap((line) => line.split(/(?<=\.)\s*-\s*/))
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      termLines.forEach((line) => {
+        const bulletText = line.replace(/^-+\s*/, '');
+        doc.fontSize(9).text(`•  ${bulletText}`, 50, termsY, { width: 495 });
+        termsY = doc.y + 3;
+      });
     }
 
     doc.end();

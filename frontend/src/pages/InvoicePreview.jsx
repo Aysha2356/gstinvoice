@@ -5,6 +5,17 @@ import AppLayout from '../components/AppLayout';
 import { useToast } from '../context/ToastContext';
 import { formatINR } from '../utils/format';
 
+// Splits a terms/notes string into individual bullet lines. Handles real
+// newlines first, and falls back to splitting on " -" patterns for text
+// stored as one run-on string like "-Point one. -Point two."
+function splitToLines(text) {
+  return text
+    .split(/\r?\n/)
+    .flatMap((line) => line.split(/(?<=\.)\s*-\s*/))
+    .map((line) => line.replace(/^-+\s*/, '').trim())
+    .filter(Boolean);
+}
+
 export default function InvoicePreview() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -265,10 +276,14 @@ export default function InvoicePreview() {
           </>
         )}
 
+        {/* CHANGED: terms now render as a bulleted list instead of one
+            run-on paragraph, matching the PDF output */}
         {invoice.terms && (
-          <div className="muted" style={{ marginTop: 8 }}>
-            {invoice.terms}
-          </div>
+          <ul className="terms-list muted" style={{ marginTop: 8 }}>
+            {splitToLines(invoice.terms).map((line, idx) => (
+              <li key={idx}>{line}</li>
+            ))}
+          </ul>
         )}
       </div>
 
