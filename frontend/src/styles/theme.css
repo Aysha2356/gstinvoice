@@ -520,3 +520,23 @@ table.list-table tr:hover td { background: #faf8fa; }
 .terms-list li {
   margin-bottom: 4px;
 }
+.template-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.template-option {
+  padding: 8px 16px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.template-option.selected {
+  border-color: var(--brand, #285A48);
+  background: #eaf6ee;
+  font-weight: 600;
+}

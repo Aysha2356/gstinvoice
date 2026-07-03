@@ -11,6 +11,7 @@ const User = sequelize.define('User', {
   city: { type: DataTypes.STRING },
   state: { type: DataTypes.STRING },
   logoUrl: { type: DataTypes.STRING },
+  pdfTemplate: { type: DataTypes.STRING, defaultValue: 'classic' },
   resetToken: { type: DataTypes.STRING },
   resetTokenExpiry: { type: DataTypes.DATE },
   invoicePrefix: { type: DataTypes.STRING, defaultValue: 'INV-' },
