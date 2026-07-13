@@ -1,9 +1,15 @@
 const OpenAI = require('openai');
 const { Invoice, Client, User } = require('../models');
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const useGroq = Boolean(process.env.GROQ_API_KEY);
+const apiKey = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
 
-// Drafts a polite payment-reminder email for an overdue/unpaid invoice using gpt-4o-mini.
+const openai = new OpenAI({
+  apiKey,
+  ...(useGroq ? { baseURL: 'https://api.groq.com/openai/v1' } : {}),
+});
+
+// Drafts a polite payment-reminder email for an overdue/unpaid invoice using Groq or OpenAI.
 exports.draftReminder = async (req, res) => {
   try {
     const invoice = await Invoice.findOne({
@@ -28,13 +34,27 @@ Days overdue: ${daysOverdue}
 Tone: friendly but firm, no guilt-tripping, one short paragraph plus a one-line closing with a clear ask to pay by a new short deadline.
 Output only the email body text, no subject line, no placeholders like [Your Name] left unresolved — sign off using the sender name above.`;
 
+    if (!apiKey) {
+      return res.status(500).json({
+        message: 'No GROQ_API_KEY or OPENAI_API_KEY configured',
+      });
+    }
+
+    const model = useGroq
+      ? process.env.GROQ_MODEL || 'llama-3.1-8b-instant'
+      : process.env.OPENAI_MODEL || 'gpt-4o-mini';
+
     const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      model,
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.6,
     });
 
-    const draft = completion.choices[0]?.message?.content?.trim() || '';
+    const draft = completion.choices?.[0]?.message?.content?.trim() || '';
+    if (!draft) {
+      return res.status(502).json({ message: 'Received empty draft from model' });
+    }
+
     res.json({ draft, daysOverdue, invoiceNumber: invoice.invoiceNumber });
   } catch (err) {
     res.status(500).json({ message: 'Failed to draft reminder', error: err.message });
