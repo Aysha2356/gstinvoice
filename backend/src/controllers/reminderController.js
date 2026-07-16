@@ -1,13 +1,15 @@
 const OpenAI = require('openai');
 const { Invoice, Client, User } = require('../models');
 
-const useGroq = Boolean(process.env.GROQ_API_KEY);
-const apiKey = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
+const getOpenAIClient = () => {
+  const apiKey = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
 
-const openai = new OpenAI({
-  apiKey,
-  ...(useGroq ? { baseURL: 'https://api.groq.com/openai/v1' } : {}),
-});
+  return new OpenAI({
+    apiKey,
+    ...(process.env.GROQ_API_KEY ? { baseURL: 'https://api.groq.com/openai/v1' } : {}),
+  });
+};
 
 // Drafts a polite payment-reminder email for an overdue/unpaid invoice using Groq or OpenAI.
 exports.draftReminder = async (req, res) => {
@@ -34,13 +36,15 @@ Days overdue: ${daysOverdue}
 Tone: friendly but firm, no guilt-tripping, one short paragraph plus a one-line closing with a clear ask to pay by a new short deadline.
 Output only the email body text, no subject line, no placeholders like [Your Name] left unresolved — sign off using the sender name above.`;
 
+    const apiKey = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({
         message: 'No GROQ_API_KEY or OPENAI_API_KEY configured',
       });
     }
 
-    const model = useGroq
+    const openai = getOpenAIClient();
+    const model = process.env.GROQ_API_KEY
       ? process.env.GROQ_MODEL || 'llama-3.1-8b-instant'
       : process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
